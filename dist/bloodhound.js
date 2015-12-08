@@ -423,6 +423,7 @@
             this.identify = o.identify || _.stringify;
             this.datumTokenizer = o.datumTokenizer;
             this.queryTokenizer = o.queryTokenizer;
+            this.selector = o.selector;
             this.matchAnyQueryToken = o.matchAnyQueryToken;
             this.reset();
         }
@@ -478,9 +479,9 @@
                         }
                     }
                 });
-                return matches ? _.map(unique(matches), function(id) {
+                return matches ? that.selector(_.map(unique(matches), function(id) {
                     return that.datums[id];
-                }) : [];
+                })) : [];
             },
             all: function all() {
                 var values = [];
@@ -653,7 +654,7 @@
     var oParser = function() {
         "use strict";
         return function parse(o) {
-            var defaults, sorter;
+            var defaults, sorter, selector;
             defaults = {
                 initialize: true,
                 identify: _.stringify,
@@ -663,6 +664,7 @@
                 sufficient: 5,
                 indexRemote: false,
                 sorter: null,
+                selector: null,
                 local: [],
                 prefetch: null,
                 remote: null
@@ -673,6 +675,10 @@
             sorter = o.sorter;
             o.sorter = sorter ? function(x) {
                 return x.sort(sorter);
+            } : _.identity;
+            selector = o.selector;
+            o.selector = selector ? function(x) {
+                return x.filter(selector);
             } : _.identity;
             o.local = _.isFunction(o.local) ? o.local() : o.local;
             o.prefetch = parsePrefetch(o.prefetch);
@@ -819,7 +825,8 @@
             this.index = new SearchIndex({
                 identify: this.identify,
                 datumTokenizer: o.datumTokenizer,
-                queryTokenizer: o.queryTokenizer
+                queryTokenizer: o.queryTokenizer,
+                selector: o.selector
             });
             o.initialize !== false && this.initialize();
         }
@@ -894,7 +901,7 @@
                 return this;
                 function processRemote(remote) {
                     var nonDuplicates = [];
-                    _.each(remote, function(r) {
+                    _.each(that.index.selector(remote), function(r) {
                         !_.some(local, function(l) {
                             return that.identify(r) === that.identify(l);
                         }) && nonDuplicates.push(r);
@@ -917,6 +924,11 @@
             clearRemoteCache: function clearRemoteCache() {
                 Transport.resetCache();
                 return this;
+            },
+            setSelector: function(selector) {
+                this.index.selector = selector ? function(x) {
+                    return x.filter(selector);
+                } : _.identity;
             },
             ttAdapter: function ttAdapter() {
                 return this.__ttAdapter();

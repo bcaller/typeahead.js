@@ -30,8 +30,9 @@ var Bloodhound = (function() {
     this.index = new SearchIndex({
       identify: this.identify,
       datumTokenizer: o.datumTokenizer,
-      queryTokenizer: o.queryTokenizer
-    });
+      queryTokenizer: o.queryTokenizer,
+      selector: o.selector
+  });
 
     // hold off on intialization if the intialize option was explicitly false
     o.initialize !== false && this.initialize();
@@ -157,7 +158,7 @@ var Bloodhound = (function() {
         var nonDuplicates = [];
 
         // exclude duplicates
-        _.each(remote, function(r) {
+        _.each(that.index.selector(remote), function(r) {
            !_.some(local, function(l) {
             return that.identify(r) === that.identify(l);
           }) && nonDuplicates.push(r);
@@ -187,6 +188,10 @@ var Bloodhound = (function() {
     clearRemoteCache: function clearRemoteCache() {
       Transport.resetCache();
       return this;
+    },
+
+    setSelector: function (selector) {
+      this.index.selector = selector ? function(x) { return x.filter(selector); } : _.identity
     },
 
     // DEPRECATED: will be removed in v1

@@ -22,6 +22,7 @@ var SearchIndex = window.SearchIndex = (function() {
     this.identify = o.identify || _.stringify;
     this.datumTokenizer = o.datumTokenizer;
     this.queryTokenizer = o.queryTokenizer;
+    this.selector = o.selector;
     this.matchAnyQueryToken = o.matchAnyQueryToken;
 
     this.reset();
@@ -105,7 +106,7 @@ var SearchIndex = window.SearchIndex = (function() {
       });
 
       return matches ?
-        _.map(unique(matches), function(id) { return that.datums[id]; }) : [];
+        that.selector(_.map(unique(matches), function(id) { return that.datums[id]; })) : [];
     },
 
     all: function all() {

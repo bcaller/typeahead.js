@@ -8,7 +8,7 @@ var oParser = (function() {
   'use strict';
 
   return function parse(o) {
-    var defaults, sorter;
+    var defaults, sorter, selector;
 
     defaults = {
       initialize: true,
@@ -19,6 +19,7 @@ var oParser = (function() {
       sufficient: 5,
       indexRemote: false,
       sorter: null,
+      selector: null,
       local: [],
       prefetch: null,
       remote: null
@@ -32,6 +33,8 @@ var oParser = (function() {
 
     sorter = o.sorter;
     o.sorter = sorter ? function(x) { return x.sort(sorter); } : _.identity;
+    selector = o.selector;
+    o.selector = selector ? function(x) { return x.filter(selector); } : _.identity;
 
     o.local = _.isFunction(o.local) ? o.local() : o.local;
     o.prefetch = parsePrefetch(o.prefetch);

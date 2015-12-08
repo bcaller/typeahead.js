@@ -36,6 +36,7 @@ Usage
 * [`Bloodhound#get(ids)`](#bloodhoundgetids)
 * [`Bloodhound#search(query, sync, async)`](#bloodhoundsearchquery-sync-async)
 * [`Bloodhound#clear()`](#bloodhoundclear)
+* [`Bloodhound#setSelector(f)`](#bloodhoundsetselector)
 
 #### new Bloodhound(options)
 
@@ -157,6 +158,10 @@ Clears the internal search index that's powered by `local`, `prefetch`, and
 ```javascript
 engine.clear();
 ```
+
+#### Bloodhound#setSelector(f)
+
+The function `f` passed to `setSelector` is used to filter results from the index. When each result arrives, it is run through the selector (filter) function. If the selector returns `false`, the datum is rejected. This can be used if multiple autocompletes use the same index, but you want to prevent the autocompletes from having the same value.
 
 ### Options
 
